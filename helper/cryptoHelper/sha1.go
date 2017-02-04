@@ -126,3 +126,35 @@ func (r *rsaPublicKey) Unsign(message []byte, sig []byte) error {
 	d := h.Sum(nil)
 	return rsa.VerifyPKCS1v15(r.PublicKey, crypto.SHA1, d, sig)
 }
+
+// func CheckPubKey(text string, signed string, pubKey string) bool {
+
+// 	notifyData, berr := json.Marshal(text)
+// 	if berr != nil {
+// 		return false
+// 	}
+// 	fmt.Println(text, signed, pubKey)
+
+// 	prePubKey := "-----BEGIN PUBLIC KEY-----\n"
+// 	sufPubKey := "\n-----END PUBLIC KEY-----"
+
+// 	parser, perr := loadPublicKey(prePubKey + pubKey + sufPubKey)
+// 	if perr != nil {
+// 		return false
+// 		//fmt.Errorf("could not sign request: %v", err)
+// 	}
+
+// 	//strings.Replace(signed, "/", "\\/", -1)
+// 	signData, nerr := base64.StdEncoding.DecodeString(signed)
+// 	if nerr != nil {
+// 		return false
+// 	}
+
+// 	err := parser.Unsign(notifyData, signData)
+// 	if err != nil {
+// 		return false
+// 		//fmt.Errorf("could not sign request: %v", err)
+// 	}
+// 	return true
+// 	//fmt.Printf("Unsign error: %v\n", err)
+// }

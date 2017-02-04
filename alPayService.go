@@ -20,10 +20,6 @@ type AlPayService struct {
 func (a *AlPayService) DirectPay(params map[string]string) (result string, err error) {
 	payData := *a.BuildCommonparam(params, al.PayCustom)
 
-	// fmt.Println(helper.EncodingGBK("你好"))
-	// fmt.Println(helper.DecodingGBK(helper.EncodingGBK("你好")))
-	// fmt.Println("====")
-
 	bizContent := make(map[string]string)
 	a.SetValue(&bizContent, al.Scence, al.BarCodeScenceCustom)
 	a.SetValue(&bizContent, al.OutTradeNo, params[al.OutTradeNoMap])
@@ -43,11 +39,12 @@ func (a *AlPayService) DirectPay(params map[string]string) (result string, err e
 
 	p, _ := json.Marshal(payData)
 
-	_, body, _ := goreq.New().Get(al.OpenApi).Query(string(p)).End()
-	//goreq.New().Post(al.OpenApi).ContentType("form").SendMapString(string(p)).End()
+	if _, body, reqErr := goreq.New().Get(al.OpenApi).Query(string(p)).End(); len(reqErr) != 0 {
+		return "", fmt.Errorf("Network error", reqErr[0])
+	} else {
+		return a.ParseResponse(body, params[al.AliPublicKey], al.PayNode)
+	}
 
-	return a.ParseResponse(body, params[al.AliPublicKey], al.PayNode)
-	//return body, nil
 }
 
 func (a *AlPayService) OrderQuery(params map[string]string) (result string, err error) {
@@ -62,12 +59,12 @@ func (a *AlPayService) OrderQuery(params map[string]string) (result string, err 
 	payData[al.Sign], _ = cryptoHelper.GetSha1Hash(mapHelper.SortedUrl(&payData), params[al.SellerPrivateKeyMap])
 
 	p, _ := json.Marshal(payData)
-	fmt.Println(string(p))
 
-	//	_, body, _ := goreq.New().Post(al.OpenApi).ContentType("form").SendMapString(string(p)).End()
-	_, body, _ := goreq.New().Get(al.OpenApi).Query(string(p)).End()
-	return a.ParseResponse(body, params[al.AliPublicKeyMap], al.QueryNode)
-	//return body, nil
+	if _, body, reqErr := goreq.New().Get(al.OpenApi).Query(string(p)).End(); len(reqErr) != 0 {
+		return "", fmt.Errorf("Network error", reqErr[0])
+	} else {
+		return a.ParseResponse(body, params[al.AliPublicKeyMap], al.QueryNode)
+	}
 }
 
 func (a *AlPayService) Refund(params map[string]string) (result string, err error) {
@@ -87,11 +84,11 @@ func (a *AlPayService) Refund(params map[string]string) (result string, err erro
 	payData[al.Sign], _ = cryptoHelper.GetSha1Hash(mapHelper.SortedUrl(&payData), params[al.SellerPrivateKeyMap])
 
 	p, _ := json.Marshal(payData)
-	fmt.Println(string(p))
-	//_, body, _ := goreq.New().Post(al.OpenApi).ContentType("form").SetHeader("Accept", "application/json;charset:gbk").SendMapString(string(p)).End()
-	_, body, _ := goreq.New().Get(al.OpenApi).Query(string(p)).End()
-	return a.ParseResponse(body, params[al.AliPublicKeyMap], al.RefundNode)
-	//return body, nil
+	if _, body, reqErr := goreq.New().Get(al.OpenApi).Query(string(p)).End(); len(reqErr) != 0 {
+		return "", fmt.Errorf("Network error", reqErr[0])
+	} else {
+		return a.ParseResponse(body, params[al.AliPublicKeyMap], al.RefundNode)
+	}
 }
 
 func (a *AlPayService) Reverse(params map[string]string, count int) (result string, err error) {
@@ -110,12 +107,10 @@ func (a *AlPayService) Reverse(params map[string]string, count int) (result stri
 	payData[al.Sign], _ = cryptoHelper.GetSha1Hash(mapHelper.SortedUrl(&payData), params[al.SellerPrivateKeyMap])
 
 	p, _ := json.Marshal(payData)
-	fmt.Println(string(p))
 
-	if req, body, reqErr := goreq.New().Get(al.OpenApi).Query(string(p)).End(); reqErr != nil {
-		return "", reqErr[0]
+	if _, body, reqErr := goreq.New().Get(al.OpenApi).Query(string(p)).End(); len(reqErr) != 0 {
+		return "", fmt.Errorf("Network error", reqErr[0])
 	} else {
-		fmt.Println(req, body, reqErr)
 
 		if result, e := a.ParseResponse(body, params[al.AliPublicKeyMap], al.ReverseNode); len(result) != 0 && e == nil {
 			return result, nil
@@ -167,34 +162,34 @@ func (a *AlPayService) SetValue(mapData *map[string]string, key string, value st
 func (a *AlPayService) ParseResponse(body string, pubKey string, repType string) (result string, err error) {
 
 	if js, err := simplejson.NewJson([]byte(body)); err != nil {
-		return "", errors.New("The request failed, please check whether the network is normal")
+		return "", fmt.Errorf("parse response error", err.Error())
 	} else {
 		jsDetail := js.Get(repType)
 		bodyMap, err := jsDetail.Map()
 		if err != nil {
-			return "", errors.New("The request failed, please check whether the network is normal")
+			return "", fmt.Errorf("parse response error", err.Error())
 		}
 		bodyArray, err := json.Marshal(bodyMap)
 		if err != nil {
-			return "", errors.New("The request failed, please check whether the network is normal")
+			return "", fmt.Errorf("parse response error", err.Error())
 		}
 		bodyJs := string(bodyArray)
 		sign, err := js.Get(al.Sign).String()
 		if err != nil {
-			return "", errors.New("The request failed, please check whether the network is normal")
+			return "", fmt.Errorf("parse response error", err.Error())
 		}
 		if isValid := cryptoHelper.CheckPubKey(bodyJs, sign, pubKey); isValid {
 			if code, _ := jsDetail.Get(al.Code).String(); code == "10000" {
 				return bodyJs, nil
 			} else if code == "10003" {
-				return "", errors.New("result is unknown")
+				return "", fmt.Errorf("result is unknown", err.Error())
 			} else {
 				subCode, _ := jsDetail.Get(al.SubCode).String()
 				return "", errors.New(subCode)
 			}
 
 		} else {
-			return "", errors.New("Pay treasure to return results signature check failed")
+			return "", errors.New("response signature failed")
 		}
 
 	}

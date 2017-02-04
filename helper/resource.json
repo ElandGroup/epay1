@@ -1,9 +1,10 @@
 {
     "10000" : "result is unknown",
-    "10001" : "The request failed, please check whether the network is normal",
-    "10002":"Pay treasure to return results signature check failed",
+    "10001" : "parse response error",
+    "10002":"response signature failed",
     "10003":"Numbers cannot be less than zero",
     "10004":"No data",
+    "10005":"Network error",
      //com
     "20001":"A required parameter is missing or doesn't have the right format"
 }   

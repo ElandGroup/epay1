@@ -2,7 +2,6 @@ package main
 
 import (
 	"epaygo/helper"
-	"fmt"
 	"net/http"
 
 	"epaygo"
@@ -16,7 +15,6 @@ func DirectPayAL(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: "20002"}})
 	}
 	directPayDto.OutTradeNo = helper.Uuid32()
-	fmt.Printf("%#v", directPayDto)
 
 	payService := new(epaygo.AlPayService)
 
@@ -25,7 +23,6 @@ func DirectPayAL(c echo.Context) error {
 	if result, err := payService.DirectPay(directPayDtoP); err != nil {
 		return c.JSON(http.StatusOK, APIResult{Success: false, Error: APIError{Code: err.Error()}})
 	} else {
-		fmt.Println(result)
 		//c.JSON(http.StatusOK, APIResult{Success: true, Result: result})
 		return c.JSON(http.StatusOK, APIResult{Success: true, Result: result})
 		//c.String(http.StatusOK, result)
@@ -38,7 +35,6 @@ func OrderQueryAL(c echo.Context) error {
 	if err := c.Bind(dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: "20001"}})
 	}
-	fmt.Printf("%#v", dto)
 
 	payService := new(epaygo.AlPayService)
 
@@ -83,14 +79,12 @@ func ReverseAL(c echo.Context) error {
 	if err := c.Bind(dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: "20001"}})
 	}
-	fmt.Printf("%#v", dto)
 
 	payService := new(epaygo.AlPayService)
 	dtoP := structToMap(dto)
 	if result, err := payService.Reverse(dtoP, 10); err != nil {
 		return c.JSON(http.StatusOK, APIResult{Success: false, Error: APIError{Code: err.Error()}})
 	} else {
-		fmt.Println(result)
 		//c.JSON(http.StatusOK, APIResult{Success: true, Result: result})
 		return c.JSON(http.StatusOK, APIResult{Success: true, Result: result})
 		//c.String(http.StatusOK, result)
