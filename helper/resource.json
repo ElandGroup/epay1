@@ -1,0 +1,9 @@
+{
+    "10000" : "result is unknown",
+    "10001" : "The request failed, please check whether the network is normal",
+    "10002":"Pay treasure to return results signature check failed",
+    "10003":"Numbers cannot be less than zero",
+    "10004":"No data",
+     //com
+    "20001":"A required parameter is missing or doesn't have the right format"
+}   
