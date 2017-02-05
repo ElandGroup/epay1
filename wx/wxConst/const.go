@@ -1,4 +1,4 @@
-package wx
+package wxConst
 
 // api for wechar
 const (
@@ -184,7 +184,7 @@ const (
 	LimitPayMap = "LimitPay"
 
 	OpUserIdMap = "OpUserId"
-	
+
 	//refund
 	TransactionIdMap = "TransactionId"
 	OutRefundNoMap   = "OutRefundNo"

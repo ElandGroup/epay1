@@ -1,4 +1,4 @@
-package al
+package alConst
 
 const (
 	OpenApi          = "https://openapi.alipay.com/gateway.do"

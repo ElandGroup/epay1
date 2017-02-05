@@ -16,7 +16,8 @@ func DirectPayAL(c echo.Context) error {
 	}
 	directPayDto.OutTradeNo = helper.Uuid32()
 
-	payService := new(epaygo.AlPayService)
+	//payService := new(epaygo.AlPayService)
+	payService, _ := epaygo.CreatePayment("AL")
 
 	directPayDtoP := structToMap(directPayDto)
 
@@ -36,7 +37,7 @@ func OrderQueryAL(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: "20001"}})
 	}
 
-	payService := new(epaygo.AlPayService)
+	payService, _ := epaygo.CreatePayment("AL")
 
 	dtoP := structToMap(dto)
 	if result, err := payService.OrderQuery(dtoP); err != nil {
@@ -57,7 +58,7 @@ func RefundAL(c echo.Context) error {
 
 	dto.OutRequestNo = helper.Uuid32()
 
-	payService := new(epaygo.AlPayService)
+	payService, _ := epaygo.CreatePayment("AL")
 	dtoP := structToMap(dto)
 	//1.query transNo by OutTradeNo
 	// q, _ := payService.OrderQueryAl(&AlOrderQueryDto{AlPayBaseDto: dto.AlPayBaseDto})
@@ -80,9 +81,9 @@ func ReverseAL(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: "20001"}})
 	}
 
-	payService := new(epaygo.AlPayService)
+	payService, _ := epaygo.CreatePayment("AL")
 	dtoP := structToMap(dto)
-	if result, err := payService.Reverse(dtoP, 10); err != nil {
+	if result, err := payService.OrderReverse(dtoP, 10); err != nil {
 		return c.JSON(http.StatusOK, APIResult{Success: false, Error: APIError{Code: err.Error()}})
 	} else {
 		//c.JSON(http.StatusOK, APIResult{Success: true, Result: result})

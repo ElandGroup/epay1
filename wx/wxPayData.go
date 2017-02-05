@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"epaygo/helper"
 	"epaygo/helper/cryptoHelper"
+	"epaygo/wx/wxConst"
 	"sort"
 
 	"strings"
@@ -67,11 +68,11 @@ func (w *WxPayData) MakeSign(key string) (sign string) {
 }
 
 func (w *WxPayData) CheckSign(key string) (isSign bool, err error) {
-	if !w.IsSet(Sign) {
+	if !w.IsSet(wxConst.Sign) {
 		return false, errors.New("10001")
-	} else if len(strings.TrimSpace(w.GetValue(Sign))) == 0 {
+	} else if len(strings.TrimSpace(w.GetValue(wxConst.Sign))) == 0 {
 		return false, errors.New("10002")
-	} else if w.GetValue(Sign) == w.MakeSign(key) {
+	} else if w.GetValue(wxConst.Sign) == w.MakeSign(key) {
 		return true, nil
 	}
 	return false, errors.New("10002")

@@ -15,11 +15,12 @@ func DirectPayWX(c echo.Context) error {
 	}
 	directPayDto.OutTradeNo = helper.Uuid32()
 
-	wxPayService := new(epaygo.WxPayService)
+	//wxPayService := new(epaygo.WxPayService)
+	payService, _ := epaygo.CreatePayment("WX")
 
 	dtoP := structToMap(directPayDto)
 
-	if result, err := wxPayService.DirectPay(dtoP); err != nil {
+	if result, err := payService.DirectPay(dtoP); err != nil {
 		return c.JSON(http.StatusOK, APIResult{Success: false, Error: APIError{Code: err.Error()}})
 	} else {
 		//c.JSON(http.StatusOK, APIResult{Success: true, Result: result})
@@ -35,10 +36,11 @@ func OrderQueryWX(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "A required parameter is missing or doesn't have the right format"+"WxOrderQueryDto")
 	}
 
-	wxPayService := new(epaygo.WxPayService)
+	payService, _ := epaygo.CreatePayment("WX")
+
 	dtoP := structToMap(dto)
 
-	if result, err := wxPayService.OrderQueryWx(dtoP); err != nil {
+	if result, err := payService.OrderQuery(dtoP); err != nil {
 		return c.JSON(http.StatusOK, APIResult{Success: false, Error: APIError{Code: err.Error()}})
 	} else {
 		return c.JSON(http.StatusOK, APIResult{Success: true, Result: result})
@@ -52,9 +54,10 @@ func RefundWX(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Message: "A required parameter is missing or doesn't have the right format" + "WxRefundDto"}})
 	}
 	dto.OutRefundNo = helper.Uuid32()
-	wxPayService := new(epaygo.WxPayService)
+	payService, _ := epaygo.CreatePayment("WX")
+
 	dtoP := structToMap(dto)
-	if result, err := wxPayService.RefundWx(dtoP); err != nil {
+	if result, err := payService.Refund(dtoP); err != nil {
 		return c.JSON(http.StatusOK, APIResult{Success: false, Error: APIError{Code: err.Error()}})
 	} else {
 		//c.JSON(http.StatusOK, APIResult{Success: true, Result: result})
@@ -70,9 +73,9 @@ func ReverseWX(c echo.Context) error {
 	if err := c.Bind(dto); err != nil {
 		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Message: "A required parameter is missing or doesn't have the right format" + "WxReverseDto"}})
 	}
-	wxPayService := new(epaygo.WxPayService)
+	payService, _ := epaygo.CreatePayment("WX")
 	dtoP := structToMap(dto)
-	if result, err := wxPayService.ReverseWx(dtoP, 10); err != nil {
+	if result, err := payService.OrderReverse(dtoP, 10); err != nil {
 		return c.JSON(http.StatusOK, APIResult{Success: false, Error: APIError{Code: err.Error()}})
 	} else {
 		//c.JSON(http.StatusOK, APIResult{Success: true, Result: result})
