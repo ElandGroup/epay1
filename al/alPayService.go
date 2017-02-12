@@ -32,8 +32,17 @@ func (a *AlPayService) DirectPay(params map[string]string) (result string, apiEr
 	a.SetValue(&bizContent, alConst.RawStoreId, params[alConst.StoreId])
 	a.SetValue(&bizContent, alConst.RawSellerId, params[alConst.SellerId])
 	a.SetValue(&bizContent, alConst.RawTimeExpire, params[alConst.TimeExpire])
-	a.SetValue(&bizContent, alConst.RawExtendParams, params[alConst.ExtendParams])
 	a.SetValue(&bizContent, alConst.RawALAuthToken, params[alConst.ALAuthToken])
+
+	//a.SetValue(&bizContent, alConst.RawExtendParams, params[alConst.ExtendParams])
+
+	extendParams := make(map[string]string)
+	extendParams[alConst.RawSysServiceProviderId] = params[alConst.SysServiceProviderId]
+	if len(extendParams) != 0 {
+		b, _ := json.Marshal(extendParams)
+		bizContent[alConst.RawExtendParams] = string(b)
+		fmt.Println(bizContent)
+	}
 
 	b, _ := json.Marshal(bizContent)
 	payData[alConst.RawBizContent] = string(b)
