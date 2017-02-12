@@ -2,9 +2,9 @@ package wx
 
 import (
 	"encoding/xml"
+	"epaygo/core/wxConst"
 	"epaygo/helper"
 	"epaygo/helper/cryptoHelper"
-	"epaygo/wx/wxConst"
 	"sort"
 
 	"strings"
@@ -68,25 +68,25 @@ func (w *WxPayData) MakeSign(key string) (sign string) {
 }
 
 func (w *WxPayData) CheckSign(key string) (isSign bool, err error) {
-	if !w.IsSet(wxConst.Sign) {
+	if !w.IsSet(wxConst.RawSign) {
 		return false, errors.New("10001")
-	} else if len(strings.TrimSpace(w.GetValue(wxConst.Sign))) == 0 {
+	} else if len(strings.TrimSpace(w.GetValue(wxConst.RawSign))) == 0 {
 		return false, errors.New("10002")
-	} else if w.GetValue(wxConst.Sign) == w.MakeSign(key) {
+	} else if w.GetValue(wxConst.RawSign) == w.MakeSign(key) {
 		return true, nil
 	}
 	return false, errors.New("10002")
 
 }
 
-func (w *WxPayData) FromXml(xml string, key string) (xmlMap helper.XmlMap, errKey error) {
+func (w *WxPayData) FromXml(xml string, key string) error {
 
 	if xmlMap, err := helper.XmlToWxMap(xml); err == nil {
 		w.xmlMap = xmlMap
 	} else {
-		return nil, err
+		return err
 	}
-	return w.xmlMap, nil
+	return nil
 
 }
 

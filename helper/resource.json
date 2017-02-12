@@ -1,10 +1,13 @@
 {
+    //"wiki":http://10.202.101.25:8090/x/54F4
     "10000" : "result is unknown",
-    "10001" : "parse response error",
+    "10001" : "system error",
     "10002":"response signature failed",
     "10003":"Numbers cannot be less than zero",
     "10004":"No data",
     "10005":"Network error",
+    "10006":"Request unsuccessful",
+    
      //com
     "20001":"A required parameter is missing or doesn't have the right format"
 }   
