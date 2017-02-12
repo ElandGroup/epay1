@@ -53,6 +53,7 @@ const (
 	RawRefundReason = "refund_reason"
 	//service provider
 	RawSysServiceProviderId = "sys_service_provider_id"
+	RawALAuthToken          = "app_auth_token"
 )
 
 //const For response alipay

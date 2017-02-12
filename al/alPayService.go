@@ -33,6 +33,7 @@ func (a *AlPayService) DirectPay(params map[string]string) (result string, apiEr
 	a.SetValue(&bizContent, alConst.RawSellerId, params[alConst.SellerId])
 	a.SetValue(&bizContent, alConst.RawTimeExpire, params[alConst.TimeExpire])
 	a.SetValue(&bizContent, alConst.RawExtendParams, params[alConst.ExtendParams])
+	a.SetValue(&bizContent, alConst.RawALAuthToken, params[alConst.ALAuthToken])
 
 	b, _ := json.Marshal(bizContent)
 	payData[alConst.RawBizContent] = string(b)
@@ -58,6 +59,7 @@ func (a *AlPayService) OrderQuery(params map[string]string) (result string, apiE
 	bizContent := make(map[string]string)
 	a.SetValue(&bizContent, alConst.RawOutTradeNo, params[alConst.OutTradeNo])
 	a.SetValue(&bizContent, alConst.RawTradeNo, params[alConst.TradeNo])
+	a.SetValue(&bizContent, alConst.RawExtendParams, params[alConst.ExtendParams])
 
 	b, _ := json.Marshal(bizContent)
 	payData[alConst.RawBizContent] = string(b)
@@ -84,7 +86,8 @@ func (a *AlPayService) Refund(params map[string]string) (result string, apiError
 	a.SetValue(&bizContent, alConst.RawOutRequestNo, params[alConst.OutRequestNo])
 	a.SetValue(&bizContent, alConst.RawRefundReason, params[alConst.RefundReason])
 	a.SetValue(&bizContent, alConst.RawStoreId, params[alConst.StoreId])
-
+	a.SetValue(&bizContent, alConst.RawAuthCode, params[alConst.AuthCode])
+	a.SetValue(&bizContent, alConst.RawExtendParams, params[alConst.ExtendParams])
 	b, _ := json.Marshal(bizContent)
 	payData[alConst.RawBizContent] = string(b)
 
@@ -114,6 +117,8 @@ func (a *AlPayService) OrderReverse(params map[string]string, count int) (result
 	bizContent := make(map[string]string)
 	a.SetValue(&bizContent, alConst.RawOutTradeNo, params[alConst.OutTradeNo])
 	a.SetValue(&bizContent, alConst.RawTradeNo, params[alConst.TradeNo])
+	a.SetValue(&bizContent, alConst.RawAuthCode, params[alConst.AuthCode])
+	a.SetValue(&bizContent, alConst.RawExtendParams, params[alConst.ExtendParams])
 	b, _ := json.Marshal(bizContent)
 	payData[alConst.RawBizContent] = string(b)
 
