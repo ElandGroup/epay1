@@ -104,7 +104,8 @@ const (
 	TradeNo = "TradeNo"
 
 	//refund
-	OutRequestNo = "OutRequestNo"
-	RefundReason = "RefundReason"
-	RefundAmount = "RefundAmount"
+	OutRequestNo         = "OutRequestNo"
+	RefundReason         = "RefundReason"
+	RefundAmount         = "RefundAmount"
+	SysServiceProviderId = "SysServiceProviderId"
 )
