@@ -32,17 +32,15 @@ func (a *AlPayService) DirectPay(params map[string]string) (result string, apiEr
 	a.SetValue(&bizContent, alConst.RawStoreId, params[alConst.StoreId])
 	a.SetValue(&bizContent, alConst.RawSellerId, params[alConst.SellerId])
 	a.SetValue(&bizContent, alConst.RawTimeExpire, params[alConst.TimeExpire])
-	a.SetValue(&bizContent, alConst.RawALAuthToken, params[alConst.ALAuthToken])
 
 	//a.SetValue(&bizContent, alConst.RawExtendParams, params[alConst.ExtendParams])
 
-	extendParams := make(map[string]string)
-	extendParams[alConst.RawSysServiceProviderId] = params[alConst.SysServiceProviderId]
-	if len(extendParams) != 0 {
-		b, _ := json.Marshal(extendParams)
-		bizContent[alConst.RawExtendParams] = string(b)
-		fmt.Println(bizContent)
-	}
+	// extendParams := make(map[string]string)
+	// extendParams[alConst.RawSysServiceProviderId] = params[alConst.SysServiceProviderId]
+	// if len(extendParams) != 0 {
+	// 	b, _ := json.Marshal(extendParams)
+	// 	bizContent[alConst.RawExtendParams] = string(b)
+	// }
 
 	b, _ := json.Marshal(bizContent)
 	payData[alConst.RawBizContent] = string(b)
@@ -50,8 +48,9 @@ func (a *AlPayService) DirectPay(params map[string]string) (result string, apiEr
 	payData[alConst.RawSign], _ = cryptoHelper.GetSha1Hash(mapHelper.SortedUrl(&payData), params[alConst.SellerPrivateKey])
 
 	p, _ := json.Marshal(payData)
+	reqParam := string(p)
 
-	if _, body, reqErr := goreq.New().Get(alConst.OpenApi).Query(string(p)).End(); len(reqErr) != 0 {
+	if _, body, reqErr := goreq.New().Get(alConst.OpenApi).Query(reqParam).End(); len(reqErr) != 0 {
 		result = ""
 		commonError := "payType:AL,method:" + alConst.ReqPay
 		apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
@@ -190,6 +189,7 @@ func (a *AlPayService) BuildCommonparam(commonParams map[string]string, method s
 	a.SetValue(&payData, alConst.RawTimeStamp, fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second()))
 
 	a.SetValue(&payData, alConst.RawVersion, alConst.ReqVersion)
+	a.SetValue(&payData, alConst.RawALAuthToken, commonParams[alConst.ALAuthToken])
 
 	return &payData
 }
@@ -199,6 +199,13 @@ func (a *AlPayService) SetValue(mapData *map[string]string, key string, value st
 		(*mapData)[key] = value
 	}
 }
+
+// func (a *AlPayService) SetValueForBizContent(mapData *map[string]string, key string, value interface{}) map[string]interface{} {
+// 	if len(strings.TrimSpace(value)) != 0 {
+// 		(*mapData)[key] = value
+// 	}
+// 	return mapHelper.ConvMap(*mapData)
+// }
 
 func (a *AlPayService) ParseResponse(body string, pubKey string, repType string) (result string, apiError *APIError) {
 
@@ -227,6 +234,7 @@ func (a *AlPayService) ParseResponse(body string, pubKey string, repType string)
 			return
 		}
 		if isValid := cryptoHelper.CheckPubKey(bodyJs, sign, pubKey); isValid {
+			fmt.Println(bodyJs)
 			if code, err := jsDetail.Get(alConst.RawCode).String(); err != nil {
 				result = ""
 				apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
@@ -234,8 +242,16 @@ func (a *AlPayService) ParseResponse(body string, pubKey string, repType string)
 			} else if code == "10000" {
 				return bodyJs, nil
 			} else if code == "10003" {
-				result = ""
-				apiError = &APIError{Code: 10001, Message: common.SystemError, Details: common.ResourceMessage(err.Error(), commonError)}
+				if msg, err := jsDetail.Get(alConst.RawMsg).String(); err != nil {
+					result = ""
+					apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+				} else {
+					result = ""
+					apiError = &APIError{Code: 10001, Message: common.SystemError, Details: common.ResourceMessage(msg, commonError)}
+				}
+
+				// result = ""
+				// apiError = &APIError{Code: 10001, Message: common.SystemError, Details: common.ResourceMessage(err.Error(), commonError)}
 				return
 			} else {
 				if subCode, err := jsDetail.Get(alConst.RawSubCode).String(); err != nil {
