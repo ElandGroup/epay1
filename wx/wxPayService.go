@@ -208,12 +208,12 @@ func (a *WxPayService) ParseResult(req goreq.Response, body string, reqErrs []er
 
 		if wxResponse == nil {
 			result = ""
-			apiError = &APIError{Code: 20005, Message: common.ResponseError, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+			apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
 			return
 		} else {
 			if len(wxResponse.GetValue(wxConst.RawReturnCode)) == 0 || strings.ToUpper(wxResponse.GetValue(wxConst.RawReturnCode)) != "SUCCESS" {
 				result = ""
-				apiError = &APIError{Code: 20005, Message: common.ResponseError, Details: common.ResourceMessage(wxResponse.GetValue(wxConst.RawErrCode), commonError)}
+				apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(wxResponse.GetValue(wxConst.RawReturnMsg), commonError)}
 				return
 			}
 			if len(wxResponse.GetValue(wxConst.RawResultCode)) != 0 && strings.ToUpper(wxResponse.GetValue(wxConst.RawResultCode)) == "SUCCESS" {
@@ -228,7 +228,7 @@ func (a *WxPayService) ParseResult(req goreq.Response, body string, reqErrs []er
 					return
 				} else {
 					result = ""
-					apiError = &APIError{Code: 20005, Message: common.ResponseError, Details: common.ResourceMessage(errCode, commonError)}
+					apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(errCode, commonError)}
 					return
 				}
 			}
@@ -236,10 +236,10 @@ func (a *WxPayService) ParseResult(req goreq.Response, body string, reqErrs []er
 		return
 	} else {
 		result = ""
-		apiError = &APIError{Code: 20005, Message: common.ResponseError, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+		apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
 		return
 	}
 	result = ""
-	apiError = &APIError{Code: 20005, Message: common.ResponseError, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+	apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
 	return
 }

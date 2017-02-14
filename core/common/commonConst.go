@@ -7,7 +7,7 @@ const (
 	RequestError       = "request error"
 	ResponseParseError = "response parse error"
 	CertificateError   = "certificate is missing or doesn't right"
-	ResponseError      = "response messge"
+	ResponseMessage    = "response messge"
 )
 
 const (

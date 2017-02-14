@@ -259,7 +259,7 @@ func (a *AlPayService) ParseResponse(body string, pubKey string, repType string)
 					apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
 				} else {
 					result = ""
-					apiError = &APIError{Code: 20005, Message: common.ResponseError, Details: common.ResourceMessage(subCode, commonError)}
+					apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(subCode, commonError)}
 				}
 				return
 			}
