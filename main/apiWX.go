@@ -6,8 +6,6 @@ import (
 	"epaygo/helper"
 	"net/http"
 
-	"epaygobiz/core/payConst"
-
 	"github.com/labstack/echo"
 )
 
@@ -16,7 +14,7 @@ func DirectPayWX(c echo.Context) error {
 	if err := c.Bind(dto); err != nil {
 		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
 	}
-	dto.OutTradeNo = helper.UuIdForPay(payConst.UuIdWxOutTradeNo)
+	dto.OutTradeNo = helper.UuIdForPay(UuIdWxOutTradeNo)
 
 	//wxPayService := new(epaygo.WxPayService)
 	payService, _ := epaygo.CreatePayment("WX")
@@ -56,7 +54,7 @@ func RefundWX(c echo.Context) error {
 	if err := c.Bind(dto); err != nil {
 		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
 	}
-	dto.OutRefundNo = helper.UuIdForPay(payConst.UuIdWxRefundNo)
+	dto.OutRefundNo = helper.UuIdForPay(UuIdWxRefundNo)
 	payService, _ := epaygo.CreatePayment("WX")
 
 	dtoP := structToMap(dto)

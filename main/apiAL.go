@@ -4,7 +4,6 @@ import (
 	"epaygo"
 	. "epaygo/core/commonDto"
 	"epaygo/helper"
-	"epaygobiz/core/payConst"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -15,7 +14,7 @@ func DirectPayAL(c echo.Context) error {
 	if err := c.Bind(directPayDto); err != nil {
 		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(directPayDto)}})
 	}
-	directPayDto.OutTradeNo = helper.UuIdForPay(payConst.UuIdAlOutTradeNo)
+	directPayDto.OutTradeNo = helper.UuIdForPay(UuIdAlOutTradeNo)
 
 	//payService := new(epaygo.AlPayService)
 	payService, _ := epaygo.CreatePayment("AL")
@@ -57,7 +56,7 @@ func RefundAL(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
 	}
 
-	dto.OutRequestNo = helper.UuIdForPay(payConst.UuIdAlRefundNo)
+	dto.OutRequestNo = helper.UuIdForPay(UuIdAlRefundNo)
 
 	payService, _ := epaygo.CreatePayment("AL")
 	dtoP := structToMap(dto)
