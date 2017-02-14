@@ -6,7 +6,6 @@ import (
 	"epaygo/core/wxConst"
 	"epaygo/helper"
 	"epaygo/helper/cryptoHelper"
-	"epaygobiz/core/payConst"
 	"net/http"
 	"strconv"
 	"strings"
@@ -181,7 +180,7 @@ func (a *WxPayService) BuildCommonparam(params map[string]string) WxPayData {
 	a.SetValue(*wxPayData, wxConst.RawSubAppId, params[wxConst.SubAppId])
 	a.SetValue(*wxPayData, wxConst.RawSubMchId, params[wxConst.SubMchId])
 
-	a.SetValue(*wxPayData, wxConst.RawNonceStr, helper.UuIdForPay(payConst.UuIdAlOutTradeNo))
+	a.SetValue(*wxPayData, wxConst.RawNonceStr, helper.UuIdForPay(""))
 	return *wxPayData
 }
 
