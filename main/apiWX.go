@@ -12,7 +12,9 @@ import (
 func DirectPayWX(c echo.Context) error {
 	dto := new(WxDirectPayDto)
 	if err := c.Bind(dto); err != nil {
-		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		// return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20004, "Object")))
+
 	}
 	dto.OutTradeNo = helper.UuIdForPay(UuIdWxOutTradeNo)
 
@@ -34,7 +36,9 @@ func DirectPayWX(c echo.Context) error {
 func OrderQueryWX(c echo.Context) error {
 	dto := new(WxOrderQueryDto)
 	if err := c.Bind(dto); err != nil {
-		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		// return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20004, "Object")))
+
 	}
 
 	payService, _ := epaygo.CreatePayment("WX")
@@ -52,7 +56,9 @@ func OrderQueryWX(c echo.Context) error {
 func RefundWX(c echo.Context) error {
 	dto := new(WxRefundDto)
 	if err := c.Bind(dto); err != nil {
-		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		// return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20004, "Object")))
+
 	}
 	dto.OutRefundNo = helper.UuIdForPay(UuIdWxRefundNo)
 	payService, _ := epaygo.CreatePayment("WX")
@@ -72,7 +78,9 @@ func ReverseWX(c echo.Context) error {
 
 	dto := new(WxReverseDto)
 	if err := c.Bind(dto); err != nil {
-		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		// return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20004, "Object")))
+
 	}
 	payService, _ := epaygo.CreatePayment("WX")
 	dtoP := structToMap(dto)

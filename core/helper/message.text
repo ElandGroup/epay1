@@ -1,0 +1,16 @@
+
+//1.format
+return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20001, "uid")))
+return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20004, "Object")))
+return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20010)))
+
+//2.SystemError
+return c.JSON(http.StatusInternalServerError, helper.SystemError(err.Error()))
+return c.JSON(http.StatusInternalServerError, helper.NewApiMessage(20007))
+
+
+//3.Message
+return c.JSON(http.StatusOK, helper.NewApiMessage(20001, "ExpressNo"))
+
+//4.Detail Message
+return c.JSON(http.StatusOK, helper.NewApiMessageWithDetails(20004, "OrderId:"+id, "Express Infomation"))

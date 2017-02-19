@@ -2,6 +2,7 @@ package main
 
 import (
 	"epaygo"
+	. "epaygo/core/common"
 	"epaygo/core/helper"
 	"net/http"
 
@@ -11,7 +12,8 @@ import (
 func DirectPayAL(c echo.Context) error {
 	directPayDto := new(AlDirectPayDto)
 	if err := c.Bind(directPayDto); err != nil {
-		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(directPayDto)}})
+		//return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(directPayDto)}})
+		return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20004, "Object")))
 	}
 	directPayDto.OutTradeNo = helper.UuIdForPay(UuIdAlOutTradeNo)
 
@@ -33,7 +35,8 @@ func DirectPayAL(c echo.Context) error {
 func OrderQueryAL(c echo.Context) error {
 	dto := new(AlOrderQueryDto)
 	if err := c.Bind(dto); err != nil {
-		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		//return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20004, "Object")))
 	}
 
 	payService, _ := epaygo.CreatePayment("AL")
@@ -52,7 +55,9 @@ func OrderQueryAL(c echo.Context) error {
 func RefundAL(c echo.Context) error {
 	dto := new(AlRefundDto)
 	if err := c.Bind(dto); err != nil {
-		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		// return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20004, "Object")))
+
 	}
 
 	dto.OutRequestNo = helper.UuIdForPay(UuIdAlRefundNo)
@@ -77,7 +82,9 @@ func RefundAL(c echo.Context) error {
 func ReverseAL(c echo.Context) error {
 	dto := new(AlReverseDto)
 	if err := c.Bind(dto); err != nil {
-		return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		// return c.JSON(http.StatusBadRequest, APIResult{Success: false, Error: APIError{Code: 10012, Message: BadRequestMessage(dto)}})
+		return c.JSON(http.StatusBadRequest, helper.CheckRequestFormat(helper.MessageString(20004, "Object")))
+
 	}
 
 	payService, _ := epaygo.CreatePayment("AL")
