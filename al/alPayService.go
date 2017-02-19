@@ -3,12 +3,11 @@ package al
 import (
 	"encoding/json"
 	"epaygo/core/alConst"
-	"epaygo/core/common"
-	. "epaygo/core/commonDto"
+	. "epaygo/core/common"
+	"epaygo/core/helper"
 	"epaygo/core/helper/cryptoHelper"
 	"epaygo/core/helper/mapHelper"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -53,7 +52,9 @@ func (a *AlPayService) DirectPay(params map[string]string) (result string, apiEr
 	if _, body, reqErr := goreq.New().Get(alConst.OpenApi).Query(reqParam).End(); len(reqErr) != 0 {
 		result = ""
 		commonError := "payType:AL,method:" + alConst.ReqPay
-		apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
+		//apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+reqErr[0].Error())
+
 		return
 	} else {
 		return a.ParseResponse(body, params[alConst.AliPublicKey], alConst.RespPay)
@@ -77,7 +78,8 @@ func (a *AlPayService) OrderQuery(params map[string]string) (result string, apiE
 	if _, body, reqErr := goreq.New().Get(alConst.OpenApi).Query(string(p)).End(); len(reqErr) != 0 {
 		result = ""
 		commonError := "payType:AL,method:" + alConst.ReqQuery
-		apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+reqErr[0].Error())
+		//apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
 		return
 	} else {
 		return a.ParseResponse(body, params[alConst.AliPublicKey], alConst.RespQuery)
@@ -105,7 +107,8 @@ func (a *AlPayService) Refund(params map[string]string) (result string, apiError
 	if _, body, reqErr := goreq.New().Get(alConst.OpenApi).Query(string(p)).End(); len(reqErr) != 0 {
 		result = ""
 		commonError := "payType:AL,method:" + alConst.ReqRefund
-		apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+reqErr[0].Error())
+		//apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
 		return
 	} else {
 		return a.ParseResponse(body, params[alConst.AliPublicKey], alConst.RespRefund)
@@ -116,7 +119,9 @@ func (a *AlPayService) OrderReverse(params map[string]string, count int) (result
 	commonError := "payType:AL,method:" + alConst.ReqReverse
 	if count <= 0 {
 		result = ""
-		apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage("request count:"+strconv.Itoa(count), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20001, commonError, "reverse count")
+
+		//apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage("request count:"+strconv.Itoa(count), commonError)}
 		return
 	}
 
@@ -136,7 +141,8 @@ func (a *AlPayService) OrderReverse(params map[string]string, count int) (result
 
 	if _, body, reqErr := goreq.New().Get(alConst.OpenApi).Query(string(p)).End(); len(reqErr) != 0 {
 		result = ""
-		apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+reqErr[0].Error())
+		//apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
 		return
 	} else {
 
@@ -149,13 +155,15 @@ func (a *AlPayService) OrderReverse(params map[string]string, count int) (result
 			var err error
 			if messgeJson, err = simplejson.NewJson([]byte(responseResult)); err != nil {
 				result = ""
-				apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+				apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+err.Error())
+				//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
 				return
 			}
 			var recall string
 			if recall, err = messgeJson.Get(alConst.RawRetryFlag).String(); err != nil {
 				result = ""
-				apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+				apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+err.Error())
+				//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
 				return
 			} else if recall == "Y" {
 				time.Sleep(10000 * time.Millisecond) //10s
@@ -164,11 +172,13 @@ func (a *AlPayService) OrderReverse(params map[string]string, count int) (result
 			} else {
 				if v, e := messgeJson.Get(alConst.RawCode).String(); e != nil {
 					result = ""
-					apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+					apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+e.Error())
+					//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
 					return
 				} else {
 					result = ""
-					apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(v, commonError)}
+					apiError = helper.NewApiErrorWithDetails(20011, commonError+":"+v)
+					//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(v, commonError)}
 					return
 				}
 			}
@@ -212,63 +222,74 @@ func (a *AlPayService) ParseResponse(body string, pubKey string, repType string)
 	commonError := "payType:AL,method:" + repType
 	if js, err := simplejson.NewJson([]byte(body)); err != nil {
 		result = ""
-		apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+err.Error())
+		//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
 		return
 	} else {
 		jsDetail := js.Get(repType)
-		body, err := jsDetail.Map()
-		if err != nil {
+		body, e := jsDetail.Map()
+		if e != nil {
 			result = ""
-			apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+			apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+e.Error())
+			//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
 			return
 		}
-		bodyArray, err := json.Marshal(body)
-		if err != nil {
-			return "", nil
+		bodyArray, e := json.Marshal(body)
+		if e != nil {
+			result = ""
+			apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+e.Error())
+			return
 		}
 		bodyJs := string(bodyArray)
-		sign, err := js.Get(alConst.RawSign).String()
-		if err != nil {
+		sign, e := js.Get(alConst.RawSign).String()
+		if e != nil {
 			result = ""
-			apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+			//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+			apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+e.Error())
 			return
 		}
 		if isValid := cryptoHelper.CheckPubKey(bodyJs, sign, pubKey); isValid {
-			fmt.Println(bodyJs)
-			if code, err := jsDetail.Get(alConst.RawCode).String(); err != nil {
+			if code, e := jsDetail.Get(alConst.RawCode).String(); e != nil {
 				result = ""
-				apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+				apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+e.Error())
+				//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
 				return
 			} else if code == "10000" {
 				return bodyJs, nil
 			} else if code == "10003" {
-				if msg, err := jsDetail.Get(alConst.RawMsg).String(); err != nil {
+				if msg, e := jsDetail.Get(alConst.RawMsg).String(); e != nil {
 					result = ""
-					apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+					//	apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+					apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+e.Error())
+					return
 				} else {
 					result = ""
-					apiError = &APIError{Code: 10001, Message: common.SystemError, Details: common.ResourceMessage(msg, commonError)}
+					//apiError = &APIError{Code: 10001, Message: common.SystemError, Details: common.ResourceMessage(msg, commonError)}
+					apiError = helper.NewApiErrorWithDetails(20011, commonError+":"+msg)
+					return
 				}
 
 				// result = ""
 				// apiError = &APIError{Code: 10001, Message: common.SystemError, Details: common.ResourceMessage(err.Error(), commonError)}
-				return
 			} else {
-				if subCode, err := jsDetail.Get(alConst.RawSubCode).String(); err != nil {
+				if subCode, e := jsDetail.Get(alConst.RawSubCode).String(); e != nil {
 					result = ""
-					apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+					//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+					apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+e.Error())
+					return
 				} else {
 					result = ""
-					apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(subCode, commonError)}
+					//apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(subCode, commonError)}
+					apiError = helper.NewApiErrorWithDetails(20011, commonError, ":"+subCode)
+					return
 				}
-				return
 			}
 
 		} else {
 			result = ""
-			apiError = &APIError{Code: 20003, Message: common.ResponseSignError, Details: common.ResourceMessage(err.Error(), commonError)}
+			//apiError = &APIError{Code: 20003, Message: common.ResponseSignError, Details: common.ResourceMessage(err.Error(), commonError)}
+			apiError = helper.NewApiErrorWithDetails(20013, commonError)
 			return
 		}
-
 	}
 }

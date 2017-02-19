@@ -1,7 +1,7 @@
 package bp
 
 import (
-	. "epaygo/core/commonDto"
+	. "epaygo/core/common"
 )
 
 type BpPayService struct {

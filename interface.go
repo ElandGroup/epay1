@@ -1,7 +1,7 @@
 package epaygo
 
 import (
-	. "epaygo/core/commonDto"
+	. "epaygo/core/common"
 )
 
 type IPayService interface {

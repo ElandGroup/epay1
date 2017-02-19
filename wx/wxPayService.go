@@ -2,12 +2,10 @@ package wx
 
 import (
 	"epaygo/core/common"
-	. "epaygo/core/commonDto"
-	"epaygo/core/wxConst"
 	"epaygo/core/helper"
 	"epaygo/core/helper/cryptoHelper"
+	"epaygo/core/wxConst"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -18,7 +16,7 @@ import (
 type WxPayService struct {
 }
 
-func (a *WxPayService) DirectPay(params map[string]string) (result string, apiError *APIError) {
+func (a *WxPayService) DirectPay(params map[string]string) (result string, apiError *common.APIError) {
 
 	wxPayData := a.BuildCommonparam(params)
 
@@ -43,7 +41,7 @@ func (a *WxPayService) DirectPay(params map[string]string) (result string, apiEr
 
 }
 
-func (a *WxPayService) Refund(params map[string]string) (result string, apiError *APIError) {
+func (a *WxPayService) Refund(params map[string]string) (result string, apiError *common.APIError) {
 	wxPayData := a.BuildCommonparam(params)
 
 	wxPayData.RemoveKey(wxConst.RawSpbillCreateIp)
@@ -73,7 +71,8 @@ func (a *WxPayService) Refund(params map[string]string) (result string, apiError
 	} else {
 		commonError := "payType:WX,method:" + common.Refund
 		result = ""
-		apiError = &APIError{Code: 10014, Message: common.CertificateError, Details: common.ResourceMessage(e.Error(), commonError)}
+		//apiError =&APIError{Code: 10014, Message: common.CertificateError, Details: common.ResourceMessage(e.Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(10014, commonError+e.Error())
 		return
 	}
 
@@ -83,7 +82,7 @@ func (a *WxPayService) Refund(params map[string]string) (result string, apiError
 
 }
 
-func (a *WxPayService) OrderQuery(params map[string]string) (result string, apiError *APIError) {
+func (a *WxPayService) OrderQuery(params map[string]string) (result string, apiError *common.APIError) {
 
 	wxPayData := a.BuildCommonparam(params)
 
@@ -99,11 +98,12 @@ func (a *WxPayService) OrderQuery(params map[string]string) (result string, apiE
 
 }
 
-func (a *WxPayService) OrderReverse(params map[string]string, count int) (result string, apiError *APIError) {
+func (a *WxPayService) OrderReverse(params map[string]string, count int) (result string, apiError *common.APIError) {
 	commonError := "payType:WX,method:" + common.Reverse
 	if count <= 0 {
 		result = ""
-		apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage("request count:"+strconv.Itoa(count), commonError)}
+		//	apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage("request count:"+strconv.Itoa(count), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20001, commonError, "reverse count")
 		return
 	}
 	wxPayData := a.BuildCommonparam(params)
@@ -123,13 +123,15 @@ func (a *WxPayService) OrderReverse(params map[string]string, count int) (result
 		reqNew.Client = &http.Client{Transport: transport}
 	} else {
 		result = ""
-		apiError = &APIError{Code: 10014, Message: common.CertificateError, Details: common.ResourceMessage(e.Error(), commonError)}
+		//apiError = &APIError{Code: 10014, Message: common.CertificateError, Details: common.ResourceMessage(e.Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(10014, commonError+e.Error())
 		return
 	}
 
 	if req, body, reqErr := reqNew.Post(wxConst.Reverse_Url).ContentType("xml").SendRawString(xmlParam).End(); reqErr != nil {
 		result = ""
-		apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
+		//apiError = &APIError{Code: 20001, Message: common.RequestError, Details: common.ResourceMessage(reqErr[0].Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20008, commonError+reqErr[0].Error())
 		return
 	} else {
 
@@ -142,13 +144,15 @@ func (a *WxPayService) OrderReverse(params map[string]string, count int) (result
 			var err error
 			if messgeJson, err = simplejson.NewJson([]byte(responseResult)); err != nil {
 				result = ""
-				apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+				//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+				apiError = helper.NewApiErrorWithDetails(20009, commonError+err.Error())
 				return
 			}
 			var recall string
 			if recall, err = messgeJson.Get(wxConst.RawRecall).String(); err != nil {
 				result = ""
-				apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+				//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+				apiError = helper.NewApiErrorWithDetails(20009, commonError+err.Error()+helper.MessageString(20010, wxConst.RawRecall))
 				return
 			} else if recall == "Y" {
 				time.Sleep(10000 * time.Millisecond) //10s
@@ -157,11 +161,13 @@ func (a *WxPayService) OrderReverse(params map[string]string, count int) (result
 			} else {
 				if v, e := messgeJson.Get(wxConst.RawErrCode).String(); e != nil {
 					result = ""
-					apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+					//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+					apiError = helper.NewApiErrorWithDetails(20009, commonError+err.Error())
 					return
 				} else {
 					result = ""
-					apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(v, commonError)}
+					//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(v, commonError)}
+					apiError = helper.NewApiError(20011, commonError+","+v)
 					return
 				}
 			}
@@ -190,56 +196,67 @@ func (a *WxPayService) SetValue(wxPayData WxPayData, key string, value string) {
 	}
 }
 
-func (a *WxPayService) ParseResult(req goreq.Response, body string, reqErrs []error, key string, reqType string) (result string, apiError *APIError) {
+func (a *WxPayService) ParseResult(req goreq.Response, body string, reqErrs []error, key string, reqType string) (result string, apiError *common.APIError) {
 	//serviceResult := ServiceResult{Result: nil, Success: ResultType.Unknown, Error: APIError{Code: 10004, Message: "", Details: nil}}
 	commonError := "payType:WX,method:" + reqType
 	wxResponse := NewWxPayData()
 	if len(reqErrs) != 0 {
 		result = ""
-		apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+		//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20008, commonError+reqErrs[0].Error())
 		return
 	}
 	if req.StatusCode == http.StatusOK {
 		if err := wxResponse.FromXml(body, key); err != nil {
 			result = ""
-			apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+			//apiError = &APIError{Code: 20001, Message: common.ResponseParseError, Details: common.ResourceMessage(err.Error(), commonError)}
+			apiError = helper.NewApiErrorWithDetails(20008, commonError+reqErrs[0].Error())
+
 			return
 		}
 
 		if wxResponse == nil {
 			result = ""
-			apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+			//apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+			apiError = helper.NewApiErrorWithDetails(20008, commonError+reqErrs[0].Error())
 			return
 		} else {
-			if len(wxResponse.GetValue(wxConst.RawReturnCode)) == 0 || strings.ToUpper(wxResponse.GetValue(wxConst.RawReturnCode)) != "SUCCESS" {
+			if !wxResponse.IsSet(wxConst.RawReturnCode) || strings.ToUpper(wxResponse.GetValue(wxConst.RawReturnCode)) != "SUCCESS" {
 				result = ""
-				apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(wxResponse.GetValue(wxConst.RawReturnMsg), commonError)}
+				//apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(wxResponse.GetValue(wxConst.RawReturnMsg), commonError)}
+				apiError = helper.NewApiErrorWithDetails(20008, commonError+reqErrs[0].Error())
 				return
-			}
-			if len(wxResponse.GetValue(wxConst.RawResultCode)) != 0 && strings.ToUpper(wxResponse.GetValue(wxConst.RawResultCode)) == "SUCCESS" {
-				result = wxResponse.ToJson()
-				apiError = nil
-				return
-			} else {
-				errCode := wxResponse.GetValue(wxConst.RawErrCode)
-				if errCode == wxConst.RawSystemError || errCode == wxConst.RawBankError || errCode == wxConst.RawUserPaying {
-					result = ""
-					apiError = &APIError{Code: 10001, Message: common.SystemError, Details: common.ResourceMessage(errCode, commonError)}
+			} else if wxResponse.IsSet(wxConst.RawResultCode) {
+				if strings.ToUpper(wxResponse.GetValue(wxConst.RawResultCode)) == "SUCCESS" {
+					result = wxResponse.ToJson()
+					apiError = nil
 					return
 				} else {
-					result = ""
-					apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(errCode, commonError)}
-					return
+					errCode := wxResponse.GetValue(wxConst.RawErrCode)
+					if errCode == wxConst.RawSystemError || errCode == wxConst.RawBankError || errCode == wxConst.RawUserPaying {
+						result = ""
+						//apiError = &APIError{Code: 10001, Message: common.SystemError, Details: common.ResourceMessage(errCode, commonError)}
+						apiError = helper.NewApiError(10001, commonError+":"+errCode)
+						return
+					} else {
+						result = ""
+						//apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(errCode, commonError)}
+						apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+errCode)
+						return
+					}
 				}
 			}
+
 		}
 		return
 	} else {
 		result = ""
-		apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+		//apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+		apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+reqErrs[0].Error())
 		return
 	}
 	result = ""
-	apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+	//apiError = &APIError{Code: 20005, Message: common.ResponseMessage, Details: common.ResourceMessage(reqErrs[0].Error(), commonError)}
+	apiError = helper.NewApiErrorWithDetails(20008, commonError+":"+reqErrs[0].Error())
 	return
 }

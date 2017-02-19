@@ -2,7 +2,7 @@ package main
 
 import (
 	"epaygo"
-	. "epaygo/core/commonDto"
+	. "epaygo/core/common"
 	"epaygo/core/helper"
 	"net/http"
 

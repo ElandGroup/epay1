@@ -1,4 +1,4 @@
-package commonDto
+package common
 
 type (
 	APIResult struct {
