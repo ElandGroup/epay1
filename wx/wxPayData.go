@@ -3,8 +3,8 @@ package wx
 import (
 	"encoding/xml"
 	"epaygo/core/wxConst"
-	"epaygo/helper"
-	"epaygo/helper/cryptoHelper"
+	"epaygo/core/helper"
+	"epaygo/core/helper/cryptoHelper"
 	"sort"
 
 	"strings"
